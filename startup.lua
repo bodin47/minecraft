@@ -3,7 +3,6 @@ MDP = "1234"
 MDPU = "1235"
 MDPUpdate = "1"
 local fileName = "startup"
-local fullName = "Table Explorer"
 local url = [[https://raw.githubusercontent.com/bodin47/minecraft/master/startup.lua]]
  
 rednet.broadcast("all_ecran_on")
@@ -53,22 +52,28 @@ write("")
 			print("Misa a jour du systeme.")
 			sleep(1)
 			shell.run("clear")
-			shell.run("delete startup")
 			print("Mise a jour en cours")
 			sleep(1)
 			local response = http.get(url)
 				if not response then
-					printError("Aucune réponse de github! Update indisponible!") return
+					term.setTextColor(colors.red)
+					print("Aucune réponse de github! Mise a jour indisponible!")
+					sleep(3)
+					shell.run("reboot")
 				end
 			term.setTextColor(colors.green)
 			print("Communication avec github réussi!")
+			shell.run("delete startup")
 			local f = fs.open(fileName,"w")
 				if not f then
-  					printError("Impossible d'ouvrir le fichier!") return
+					term.setTextColor(colors.red)
+  					print("Impossible d'ouvrir le fichier!")
+					sleep(3)
+					shell.run("reboot")
 				end
 			f.write( response.readAll() )
 			f.close()
-			print(fullName .. " a été installé!")
+			print("La mise à jour a été installé avec succès!")
 			sleep(2)
 		elseif Commande == "ecran" then
 			print("Definir le status des ecrans?")
@@ -171,19 +176,6 @@ else
 	print("Erreur: Le mot de passe que vous avez saisi est incorrect !")
     sleep(2)
 end
-
-while true do
-	term.clear()
-	print("t")
-	color = read()
-		if color == "bl" then
-			rs.setBundledOutput("back", colors.white)
-		elseif color == "pl" then
-			shell.run("reboot")
-		else
-			print("lol")
-		end
-end 
 
 term.setBackgroundColour(colours.black)
 term.setTextColor(colors.white)

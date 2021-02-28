@@ -2,6 +2,9 @@ shell.run("clear")
 MDP = "1234"
 MDPU = "1235"
 MDPUpdate = "1"
+local fileName = "startup"
+local fullName = "Table Explorer"
+local url = [[https://raw.githubusercontent.com/bodin47/minecraft/master/startup.lua]]
  
 rednet.broadcast("all_ecran_on")
 print("Bonjour, que puis-je faire pour vous?")
@@ -9,8 +12,15 @@ print("")
 print("Veuillez saisir le mot de passe :")
  
 text = read("*")
- 
+
+if not http then
+	term.setBackgroundColour(colours.red)
+	printError("HTTP doit être activé!") return
+	term.setBackgroundColour(colours.black)
+end
+
 if text == (MDP) then
+term.setBackgroundColour(colours.black)
 write("")
 	print("Que dois je faire?")
 	write ("Admin: ")
@@ -46,12 +56,20 @@ write("")
 			shell.run("delete startup")
 			print("Mise a jour en cours")
 			sleep(1)
-			shell.run("pastebin get CeqAMQE6 startup")
-			print("Mise a jour fini")
-			sleep(1)
-			print("Redemarage")
-			sleep(1)
-			shell.run("reboot")
+			local response = http.get(url)
+				if not response then
+					printError("Aucune réponse de github! Update indisponible!") return
+				end
+			term.setTextColor(colors.green)
+			print("Communication avec github réussi!")
+			local f = fs.open(fileName,"w")
+				if not f then
+  					printError("Impossible d'ouvrir le fichier!") return
+				end
+			f.write( response.readAll() )
+			f.close()
+			print(fullName .. " a été installé!")
+			sleep(2)
 		elseif Commande == "ecran" then
 			print("Definir le status des ecrans?")
 			write ("Admin_Ecran: ")
@@ -168,6 +186,7 @@ while true do
 end 
 
 term.setBackgroundColour(colours.black)
+term.setTextColor(colors.white)
 rednet.broadcast("all_ecran_off")
 redstone.setOutput("bottom", false)
 shell.run("startup")
